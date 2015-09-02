@@ -15,7 +15,7 @@ library(rhandsontable)
 library(plyr)
 library(dplyr)
 
-twit_cred <- read.csv("~/Desktop/Dropbox/Analytics Projects/Quantifan/twitter credentials.csv", stringsAsFactors=FALSE)
+twit_cred <- read.csv("twitter credentials.csv", stringsAsFactors=FALSE)
 
 #setup twitter credentials
 setup_twitter_oauth(consumer_key = twit_cred[1,2],
