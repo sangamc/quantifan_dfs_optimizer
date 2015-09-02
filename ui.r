@@ -22,10 +22,10 @@ shinyUI(
                           selectInput('site', 'DFS site projections:', 
                                       choices = c('DraftKings', 'FanDuel'),
                                       selected = 'DraftKings'),
-#                           hr(),
-#                           #fantasy projections download
-#                           downloadButton('download_projections', 'Download projections'),
-#                           #fantsy projections upload
+                          hr(),
+                          #fantasy projections download
+                          downloadButton('download_projections', 'Download projections'),
+                          # fantsy projections upload
                           hr(),
                           fileInput('projection_upload', 'Upload projections (.csv)',
                                     accept = '.csv')

@@ -8,21 +8,21 @@ library(shiny)
 library(shinyBS) #supports alerts and tooltips
 library(changepoint)
 library(gridExtra)
-require(reshape2)
+library(reshape2)
 library(ggthemes)
 library(ggplot2)
 library(rhandsontable)
 library(plyr)
 library(dplyr)
 
-twit_cred <- read.csv("C:/Users/rdelvicario/Desktop/Projects/150427 Quantifan/twitter credentials.csv", stringsAsFactors=FALSE)
+twit_cred <- read.csv("~/Desktop/Dropbox/Analytics Projects/Quantifan/twitter credentials.csv", stringsAsFactors=FALSE)
 
 #setup twitter credentials
 setup_twitter_oauth(consumer_key = twit_cred[1,2],
                     consumer_secret = twit_cred[2,2],
                     access_token = twit_cred[3,2],
                     access_secret = twit_cred[4,2])
-rm(twit_red)
+rm(twit_cred)
 
 
   
@@ -216,6 +216,21 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observe({
+    #uploaded values
+    if(!is.null(input$projection_upload)){
+      temp <- input$projection_upload
+      str(temp)
+      temp <- read.csv(temp$datapath, stringsAsFactors = F)
+      temp <- setDFNames(temp)
+      if(isolate(input$site) == "DraftKings"){
+        values[['draftkings']] <- temp
+      } else {
+        values[["fanduel"]] <- temp
+      }
+    }
+  })
+  
   df <- reactive({
     if (input$site == "DraftKings") {
       df <- values[["draftkings"]]
@@ -224,6 +239,17 @@ shinyServer(function(input, output, session) {
     }
     df
   })
+  
+  output$download_projections <- downloadHandler(
+    #write out csv file
+    filename = function() { paste(input$site, '.csv', sep='') },
+    content = function(file) {
+      temp <- df()
+      temp <- setDFNames(temp)
+      str(temp)
+      write.csv(temp, file, row.names = F)
+    }
+  )
 
   #table tools to export to csv, xls, etc exist
   #https://rstudio.github.io/DT/003-tabletools-buttons.html
