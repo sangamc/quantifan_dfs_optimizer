@@ -1,11 +1,10 @@
 #solver helper functions 
 solverSetupData <- function(df){
   
-  #soft lock players
+  #soft lock/exclude players
   df$fp <- ifelse(df$lock == T, df$fp * 4, df$fp)
-  
-  #remove excluded players
-  df <- df[df$exclude == F, ]
+  df$fp <- ifelse(df$lock == T, df$fp * .1, df$fp)
+
   
   #setup player dummy variables
   dummy_vars <- matrix(as.numeric(model.matrix(fp ~ ps, data = df)), ncol = 5)
@@ -78,9 +77,11 @@ runSolver <- function(df, dummy_vars, max_fp = 1000000000){
   
   #filter return columns
   team_out <- team_out %>%
-    select(name, ps, salary, game_info, fp, lock)
+    select(name, ps, salary, game_info, fp, lock, exclude)
   team_out$opt_sol <- sum(team_out$fp)
   team_out$fp <- ifelse(team_out$lock == T, team_out$fp / 4, team_out$fp)
+  team_out$fp <- ifelse(team_out$exclude == T, team_out$fp / .1, team_out$fp)
+  team_out$exclude <- NULL
   team_out$proj_fp <- sum(team_out$fp)
 
   #write out selected team

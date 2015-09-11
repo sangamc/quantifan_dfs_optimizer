@@ -15,7 +15,7 @@ library(rhandsontable)
 library(plyr)
 library(dplyr)
 
-twit_cred <- read.csv("twitter credentials.csv", stringsAsFactors=FALSE)
+twit_cred <- read.csv("~/Desktop/Dropbox/Analytics Projects/Quantifan/twitter credentials.csv", stringsAsFactors = F)
 
 #setup twitter credentials
 setup_twitter_oauth(consumer_key = twit_cred[1,2],
@@ -50,8 +50,8 @@ source("iterative_solve.r")
 
 getTweets <- function(x) {
   out <- ldply(searchTwitter(x, lang = 'en', resultType = "recent", n = 10), function(x) {
-    Tweet <- as.character(x$text)
-    Tweet <- str_replace_all(Tweet, "[^[:alnum:]]", " ")
+    Tweet <- deparse(x$text)
+    # Tweet <- str_replace_all(Tweet, "[^[:alnum:]]", " ")
     Screename <- x$screenName
     x <- data.frame(Screename, Tweet)
   })
@@ -65,13 +65,13 @@ tweetToDT <- function(x, num){
   tweets$player_num <- NULL
   tweets$player <- NULL
   rownames(tweets) <- NULL
-  print(tweets)
-  #     tweets <- print(xtable(tweets, caption = player),
-  #                    type="html",
-  #                    html.table.attributes='class="data table table-bordered table-condensed"',
-  #                    caption.placement="top")
-  #     print(tweets)
-  print(is.data.frame(tweets))
+#   tweets <- as.data.frame(tweets)
+#   tweets <- print(xtable(tweets, caption = player),
+#                  type="html",
+#                  html.table.attributes='class="data table table-bordered table-condensed"',
+#                  caption.placement="top")
+
+
   tweets <- DT::datatable(tweets,
                           caption = player,
                           escape = T,
@@ -198,12 +198,36 @@ simMultPaths <- function(opt_bet_size, win, win_prob, trials, paths){
 
 # Shiny Server  -----------------------------------------------------------
 shinyServer(function(input, output, session) {
-# Player Projections and Upload -------------------------------------------
-
+  
   values = reactiveValues()
   values[["draftkings"]] <- dk
   values[["fanduel"]] <- fd
+  values[["slider_max"]] <- 2
+
+# Dynamic Controls --------------------------------------------------------
   
+  observe({
+    if(!is.null(input$num_lineup)){
+      values[["slider_max"]] <- input$num_lineup
+      print(values[["slide_max"]])
+    } else {
+      values[["slider_max"]] <- 2
+      print(values[["slide_max"]])
+    }
+  })
+  
+
+
+  output$slider <- renderUI({
+    sliderInput("twit_lineup", "Select lineup to search Twitter:", 
+                min = 1, 
+                max = max(values[["slider_max"]], 2), 
+                value = 1, 
+                step = 1)
+  })
+  
+# Player Projections and Upload -------------------------------------------
+
   observe({   
     if (!is.null(input$projections)) {  
       temp <- hot_to_r(input$projections)
@@ -401,7 +425,7 @@ shinyServer(function(input, output, session) {
   
   twit_out <- reactive({
     players <- solutions()
-    players <- players$name[players$sol_num == 1]
+    players <- players$name[players$sol_num == input$twit_lineup]
     tweets <- data.frame()
     for(i in 1:length(players)){
       tmp <- getTweets(players[i])

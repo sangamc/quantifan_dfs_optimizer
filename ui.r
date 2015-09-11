@@ -45,9 +45,10 @@ shinyUI(
 #                           hr(),
                           sliderInput("num_lineup", 
                                       "Number of lineups to create:",
-                                      min = 1,
+                                      min = 2,
                                       max = 20,
-                                      value = 1)),
+                                      value = 1, 
+                                      step = 1)),
                         mainPanel(uiOutput("tables"))
                       )
              ),
@@ -93,6 +94,10 @@ shinyUI(
              
 # Twitter search controls -------------------------------------------------
              tabPanel("Twitter Search",
+                      sidebarLayout(
+                        sidebarPanel(
+                          width = 3,
+                          uiOutput("slider")),
                         mainPanel(DT::dataTableOutput("twitter_1"),
                                   DT::dataTableOutput("twitter_2"),
                                   DT::dataTableOutput("twitter_3"),
@@ -100,7 +105,7 @@ shinyUI(
                                   DT::dataTableOutput("twitter_5"),
                                   DT::dataTableOutput("twitter_6"),
                                   DT::dataTableOutput("twitter_7"),
-                                  DT::dataTableOutput("twitter_8"))
+                                  DT::dataTableOutput("twitter_8")))
                       ),
              
 # Bet sizing estimator controls -------------------------------------------
