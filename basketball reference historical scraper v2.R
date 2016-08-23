@@ -20,7 +20,7 @@ for(i in history){
   url <- paste0("http://www.basketball-reference.com/leagues/NBA_", i, "_games.html")
   tbl <- readHTMLTable(url)
   sched <- tbl$games
-  colnames(sched) <- c("date", "box_score", "visitor", "v_pts", "home", "h_pts", "ot", "notes")
+  colnames(sched) <- c("date", "start", "box_score", "visitor", "v_pts", "home", "h_pts", "ot", "notes")
   
   # fix team names to create our reference URL
   sched <- sqldf("Select
